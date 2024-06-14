@@ -22,12 +22,15 @@ samplerate, data = wavfile.read(wav_file)
 
 #Using the documentation to plot the WAV file
 
-length = data.shape[0] / samplerate
-time = np.linspace(0., length, data.shape[0])
+def make_plot(samplerate, data):
+    length = data.shape[0] / samplerate
+    time = np.linspace(0., length, data.shape[0])
 
-plt.plot(time, data[:, 0], label="Left channel")
-plt.plot(time, data[:, 1], label="Right channel")
-plt.legend()
-plt.xlabel("Time [s]")
-plt.ylabel("Amplitude")
-plt.show()
+    plt.plot(time, data[:, 0], label="Left channel")
+    plt.plot(time, data[:, 1], label="Right channel")
+    plt.legend()
+    plt.xlabel("Time [s]")
+    plt.ylabel("Amplitude")
+    plt.show()
+
+#make_plot(samplerate, data)
