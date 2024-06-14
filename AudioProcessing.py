@@ -4,13 +4,18 @@ import wave
 import numpy as np
 from scipy.io import wavfile 
 from pydub import AudioSegment
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 #Storing the mp3 file
 mp3_file = "HotCrossBuns.mp3"
 
-#Opening the mp3 file as a WAV file and I THINK storing it
-wav_file = AudioSegment.from_mp3(mp3_file)
+#Get MP3 as audio segment 
+audio = AudioSegment.from_mp3(mp3_file)
+
+#Make the audio into a WAV file
+wav_file = "HotCrossBuns.wav"
+audio.export(wav_file, format="wav")
+
 
 #Read the WAV file
 samplerate, data = wavfile.read(wav_file)
