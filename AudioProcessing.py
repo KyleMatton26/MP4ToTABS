@@ -65,15 +65,12 @@ def get_domiant_frequency(frame, samplerate):
 
     #Gets the magnitude of each frequency of the wave
     fft_signal_abs = np.abs(fft_signal)
-    print("Length of fft_signal_abs:", len(fft_signal_abs))
-    print(fft_signal_abs)
 
     # Converts the magnitude of each frequency to its frequency in Hz. Documentation for rfftfreq: https://docs.scipy.org/doc/scipy/reference/generated/scipy.fft.rfftfreq.html
     frequencies = rfftfreq(len(frame), 1 / samplerate)
 
     #Get the dominant frequency by using argmax to find the index of the frequency with the strongest magnitude 
     dominant_frequency_index = np.argmax(fft_signal_abs)
-    print(dominant_frequency_index)
 
     #uses the index to get the frequency in Hz
     dominant_frequency = frequencies[dominant_frequency_index]
