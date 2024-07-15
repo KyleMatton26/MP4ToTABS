@@ -66,7 +66,7 @@ def get_domiant_frequency(frame, samplerate):
     fft_signal = rfft(frame)
 
     #Gets the magnitude of each frequency of the wave
-    fft_signal_abs = np.abs(fft_signal)
+    fft_signal_abs = np.abs(fft_signal) #Possibly change to it being squared, Quantum Physics Wave Functions and probibility
 
     # Converts the magnitude of each frequency to its frequency in Hz. Documentation for rfftfreq: https://docs.scipy.org/doc/scipy/reference/generated/scipy.fft.rfftfreq.html
     frequencies = rfftfreq(len(frame), 1 / samplerate)
