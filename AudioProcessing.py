@@ -135,7 +135,8 @@ for i in range(number_of_frames):
 # Apply median filtering to smooth the frequency plot
 smoothed_frequencies = median_smooth(frequencies, kernel_size=25)  # Adjust kernel_size as needed: Larger kernel size means a larger window to take the median of. Would miss small changes but would be more accurate for longer notes if kernel size is bigger
 
-# Save the smoothed frequencies and times to a file for further analysis
+# Save the smoothed frequencies and times to a file for further analysis 
+#Maybe try arrays later
 np.savez("dominant_frequencies.npz", times=times, frequencies=smoothed_frequencies)
 
 # Plotting

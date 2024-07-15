@@ -60,7 +60,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     }
 
     # Function to interpret frequencies into notes
-    def interpret_frequencies(frequencies, expected_hz_values, error_margin=15):
+    def interpret_frequencies(frequencies, expected_hz_values):
         notes = []
         for freq in frequencies:
             note = None
