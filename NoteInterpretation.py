@@ -2,19 +2,35 @@ import numpy as np
 import librosa
 
 def get_matched_notes(audio_path, dominant_frequencies_path):
+
+    # Load audio and check if the audio data is loaded correctly
+    try:
+        y, sr = librosa.load(audio_path)
+        if len(y) == 0:
+            raise ValueError("The loaded audio signal is empty.")
+        print(f"Audio loaded successfully. Signal length: {len(y)}, Sample rate: {sr}")
+    except Exception as e:
+        print(f"Error loading audio file: {e}")
+        return []
     #Load audio. Documentation: https://librosa.org/doc/latest/generated/librosa.load.html
     y, sr = librosa.load(audio_path)
-
-    # Compute Short-Time Energy (STE)
-    def compute_ste(signal, window_size, hop_length):
-        squared_signal = np.square(signal)
-        window = np.ones(window_size) / float(window_size)
-        ste = np.convolve(squared_signal, window, mode='same')
-        return ste[::hop_length]
 
     # Parameters for STE calculation 
     window_size = 1024
     hop_length = 465
+
+    # Compute Short-Time Energy (STE)
+    def compute_ste(signal, window_size, hop_length):
+        if len(signal) == 0:
+            raise ValueError("The input signal is empty.")
+        squared_signal = np.square(signal)
+        window_size = min(window_size, len(signal))
+        window = np.ones(window_size) / float(window_size)
+        if len(squared_signal) < window_size:
+            raise ValueError("The window size is larger than the signal length.")
+        ste = np.convolve(squared_signal, window, mode='same')
+        return ste[::hop_length]
+
 
     # Compute STE
     ste = compute_ste(y, window_size, hop_length)
@@ -117,7 +133,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
 
 if __name__ == "__main__":
     #audio_path = "HotCrossBuns.mp3"
-    audio_path = "TwinkleTwinkleLittleStar.mp3"
+    audio_path = "TwinkleTwinkleLittleStar.wav"
     dominant_frequencies_path = "dominant_frequencies.npz"
     matched_notes = get_matched_notes(audio_path, dominant_frequencies_path)
 

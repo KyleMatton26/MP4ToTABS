@@ -47,7 +47,7 @@ def create_sheet_music(matched_notes, score_name, output_path="output.musicxml")
 
 # Example usage
 #audio_path = "HotCrossBuns.mp3"
-audio_path = "TwinkleTwinkleLittleStar.mp3"
+audio_path = "TwinkleTwinkleLittleStar.wav"
 dominant_frequencies_path = "dominant_frequencies.npz"
 
 # Ensure the get_matched_notes function is available and correct
@@ -57,6 +57,6 @@ matched_notes = get_matched_notes(audio_path, dominant_frequencies_path)
 create_sheet_music(matched_notes, "Twinkle Twinkle Little Star")
 
 #Opening the musicxml file
-file_path = "/Users/jacobaar/code/MP4ToTABS/output.musicxml"
+file_path = "output.musicxml"
 score = converter.parse(file_path)
 score.show()
