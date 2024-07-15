@@ -8,7 +8,8 @@ from scipy.signal import medfilt
 import os
 
 # Storing the mp3 file
-mp3_file = "HotCrossBuns.mp3"
+#mp3_file = "HotCrossBuns.mp3"
+mp3_file = "TwinkleTwinkleLittleStar.mp3"
 
 # Check if the file exists
 if not os.path.exists(mp3_file):
@@ -22,7 +23,8 @@ audio = AudioSegment.from_mp3(mp3_file)
 audio = audio.set_channels(1)
 
 # Make the audio into a WAV file
-wav_file = "HotCrossBuns.wav"
+#wav_file = "HotCrossBuns.wav"
+wav_file = "TwinkleTwinkleLittleStar.wav"
 print("Converting to WAV...")
 audio.export(wav_file, format="wav")
 
@@ -54,7 +56,7 @@ def get_hop_size():
     return hop_size
 
 # Function to apply median filtering to smooth the frequency plot. Documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.medfilt.html
-def median_smooth(frequencies, kernel_size=5):
+def median_smooth(frequencies, kernel_size=15):
     smoothed_frequencies = medfilt(frequencies, kernel_size)
     return smoothed_frequencies
 
@@ -89,9 +91,27 @@ times = []
 
 # Table with expected Hz values for the notes (C4, D4, E4)
 expected_hz_values = {
+    #HCB expected values
     'C4': 261.63,
-    'D4': 293.66,
-    'E4': 329.63
+    #'D4': 293.66,
+    'E4': 329.63,
+    
+    #TTLS expected values
+    #'C4': 261.63,
+    #'D4': 293.66,
+    #'E4': 329.63,
+    'G4': 392.00
+    #'A4': 440.00,
+    #'F4': 349.23
+    
+    
+    
+    #'C5': 523.25,
+    #'G5': 783.99,
+    #'A5': 880.00,
+    #'F5': 698.46,
+    #'D5': 587.33,
+    #'E5': 659.26
 }
 
 # Loop through each frame and add the dominant frequency to the array
@@ -113,7 +133,7 @@ for i in range(number_of_frames):
     times.append(current_time)
 
 # Apply median filtering to smooth the frequency plot
-smoothed_frequencies = median_smooth(frequencies, kernel_size=5)  # Adjust kernel_size as needed: Larger kernel size means a larger window to take the median of. Would miss small changes but would be more accurate for longer notes if kernel size is bigger
+smoothed_frequencies = median_smooth(frequencies, kernel_size=25)  # Adjust kernel_size as needed: Larger kernel size means a larger window to take the median of. Would miss small changes but would be more accurate for longer notes if kernel size is bigger
 
 # Save the smoothed frequencies and times to a file for further analysis
 np.savez("dominant_frequencies.npz", times=times, frequencies=smoothed_frequencies)
@@ -136,4 +156,4 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
     plt.show()
 
 #uncomment this to see the graph
-#make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
+make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)

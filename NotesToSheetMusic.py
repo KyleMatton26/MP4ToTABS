@@ -3,6 +3,14 @@
 import music21 as m21
 from music21 import stream, duration, note, metadata
 from NoteInterpretation import get_matched_notes
+#Adding this to open the musicxml file
+from music21 import converter, stream
+
+
+# Set the MuseScore path
+us = m21.environment.UserSettings()
+us['musicxmlPath'] = '/Applications/MuseScore 4.app/Contents/MacOS/mscore'  # Adjust this path as necessary
+
 
 def create_sheet_music(matched_notes, score_name, output_path="output.musicxml"):
     # Create a Music21 Score
@@ -38,10 +46,17 @@ def create_sheet_music(matched_notes, score_name, output_path="output.musicxml")
     score.write('musicxml', fp=output_path)
 
 # Example usage
-audio_path = "HotCrossBuns.mp3"
+#audio_path = "HotCrossBuns.mp3"
+audio_path = "TwinkleTwinkleLittleStar.mp3"
 dominant_frequencies_path = "dominant_frequencies.npz"
 
 # Ensure the get_matched_notes function is available and correct
 matched_notes = get_matched_notes(audio_path, dominant_frequencies_path)
 
-create_sheet_music(matched_notes, "Hot Cross Buns")
+#create_sheet_music(matched_notes, "Hot Cross Buns")
+create_sheet_music(matched_notes, "Twinkle Twinkle Little Star")
+
+#Opening the musicxml file
+file_path = "/Users/jacobaar/code/MP4ToTABS/output.musicxml"
+score = converter.parse(file_path)
+score.show()

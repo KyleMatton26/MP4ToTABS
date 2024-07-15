@@ -28,9 +28,19 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
 
     # Table with expected Hz values for the notes
     expected_hz_values = {
+        #HCB expected values
+        #'C4': 261.63,
+        #'D4': 293.66,
+        #'E4': 329.63
+        
+        
+        #TTLS expected values
         'C4': 261.63,
         'D4': 293.66,
-        'E4': 329.63
+        'E4': 329.63,
+        'G4': 392.00,
+        'A4': 440.00,
+        'F4': 349.23
     }
 
     # Function to interpret frequencies into notes
@@ -39,6 +49,8 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
         for freq in frequencies:
             note = None
             for note_name, hz_value in expected_hz_values.items():
+                #trying to make the error margin better
+                error_margin = hz_value * 0.03
                 if abs(freq - hz_value) <= error_margin:
                     note = note_name
                     break
@@ -104,7 +116,8 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     return matched_notes
 
 if __name__ == "__main__":
-    audio_path = "HotCrossBuns.mp3"
+    #audio_path = "HotCrossBuns.mp3"
+    audio_path = "TwinkleTwinkleLittleStar.mp3"
     dominant_frequencies_path = "dominant_frequencies.npz"
     matched_notes = get_matched_notes(audio_path, dominant_frequencies_path)
 
