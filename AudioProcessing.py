@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 from scipy.fft import rfft, rfftfreq
 from scipy.signal import medfilt
 import os
+import librosa
 
 # Storing the mp3 file
-#mp3_file = "HotCrossBuns.mp3"
-mp3_file = "TwinkleTwinkleLittleStar.mp3"
+mp3_file = "HotCrossBuns.mp3"
+#mp3_file = "TwinkleTwinkleLittleStar.mp3"
 
 # Check if the file exists
 if not os.path.exists(mp3_file):
@@ -23,13 +24,33 @@ audio = AudioSegment.from_mp3(mp3_file)
 audio = audio.set_channels(1)
 
 # Make the audio into a WAV file
-#wav_file = "HotCrossBuns.wav"
-wav_file = "TwinkleTwinkleLittleStar.wav"
+wav_file = "HotCrossBuns.wav"
+#wav_file = "TwinkleTwinkleLittleStar.wav"
 print("Converting to WAV...")
 audio.export(wav_file, format="wav")
 
+
+
+#Chunk to get the tempo
+# Load the audio file
+y, sr = librosa.load(wav_file)
+# Parameters
+hop_length = 256  # Adjust as needed
+onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length)
+# Refine onset envelope
+onset_env = librosa.util.normalize(onset_env)
+# Extract the tempo using the refined onset envelope
+tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop_length)
+tempo = int(tempo)
+print(f"Estimated tempo: {tempo} BPM")
+
+#NEED TO TAKE THE TEMPO AND USE IT WITH THE SAMPLE RATE TO GET HOW MANY SAMPLES ARE IN A 32nd NOTE
+#SET THAT AS THE FRAME SIZE THEN MAKE HOP SIZE HALF THAT
+
 # Read the WAV file
 samplerate, data = wavfile.read(wav_file)
+
+print(f"Estimated sample rate: {samplerate} SPS")
 
 # Using the documentation to plot the WAV file
 def make_plot(samplerate, data):
@@ -41,13 +62,20 @@ def make_plot(samplerate, data):
     plt.xlabel("Time [s]")
     plt.ylabel("Amplitude")
     plt.show()
-
+    
 #make_plot(samplerate, data)
 
+
+beats_per_second = tempo/60
+quarter_note_duration = 1/(beats_per_second*4) #*2 for 8th note : *4 for 16th note : *1 for quarter note
+print(f"Estimated quarter note duration: {quarter_note_duration} seconds")
 #Number of samples in each frame - This typically is a power of 2 between 256-8192 (Stated in the video u posted)
-frame_size = 2048
+frame_size = int(quarter_note_duration*samplerate) #2048 was old frame size
 #Frame 1: 0-2048, Frame 2: 1024 - 3072. Hop size is the amount of samples you skip over to start the next frame. I chose 1024 because typically each frame should contain 50% overlap. Smaller hop size, more overlap. Larger hop size, less overlap.
-hop_size = 1024
+hop_size = int(frame_size/2) #1024 was old hop size
+
+print(f"Estimated frame size: {frame_size} samples per frame")
+
 
 def get_samplerate():
     return samplerate
@@ -93,14 +121,14 @@ times = []
 expected_hz_values = {
     #HCB expected values
     'C4': 261.63,
-    #'D4': 293.66,
+    'D4': 293.66,
     'E4': 329.63,
     
     #TTLS expected values
     #'C4': 261.63,
     #'D4': 293.66,
     #'E4': 329.63,
-    'G4': 392.00
+    #'G4': 392.00
     #'A4': 440.00,
     #'F4': 349.23
     
@@ -151,6 +179,11 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
     # Add expected Hz values as horizontal lines for C4, D4, E4 notes (Thank you ChatGPT :) )
     for note, hz_value in expected_hz_values.items():
         plt.axhline(y=hz_value, color='r', linestyle='--', label=f'{note} (Expected {hz_value} Hz)')
+        
+    # Add vertical lines for frame windows
+    for i in range(number_of_frames):
+        frame_start_time = (i * hop_size) / samplerate
+        plt.axvline(x=frame_start_time, color='b', linestyle='--', alpha=0.5)
 
     plt.legend()
     plt.grid(True)
