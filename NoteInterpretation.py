@@ -1,5 +1,6 @@
 import numpy as np
 import librosa
+from AudioProcessing import get_frame_size, get_hop_size
 
 def get_matched_notes(audio_path, dominant_frequencies_path):
 
@@ -16,8 +17,8 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     y, sr = librosa.load(audio_path)
 
     # Parameters for STE calculation 
-    window_size = 1024
-    hop_length = 465
+    window_size = get_frame_size()
+    hop_length = get_hop_size()
 
     # Compute Short-Time Energy (STE)
     def compute_ste(signal, window_size, hop_length):
@@ -132,8 +133,8 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     return matched_notes
 
 if __name__ == "__main__":
-    #audio_path = "HotCrossBuns.mp3"
-    audio_path = "TwinkleTwinkleLittleStar.wav"
+    audio_path = "HotCrossBuns.mp3"
+    #audio_path = "TwinkleTwinkleLittleStar.wav"
     dominant_frequencies_path = "dominant_frequencies.npz"
     matched_notes = get_matched_notes(audio_path, dominant_frequencies_path)
 
