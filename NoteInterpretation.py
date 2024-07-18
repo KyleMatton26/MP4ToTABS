@@ -71,6 +71,9 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
                 if abs(freq - hz_value) <= error_margin:
                     note = note_name
                     break
+            #Check if a note is a rest. Might have to lower the threshold from 30 so it doesnt confuse really low notes as rests 
+            if note is None and freq < 30:
+                note = "Rest"
             notes.append(note)
         return notes
 
