@@ -37,7 +37,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     ste = compute_ste(y, window_size, hop_length)
 
     # Detect note onsets using STE. Documentation: https://librosa.org/doc/main/generated/librosa.onset.onset_detect.html
-    onsets = librosa.onset.onset_detect(onset_envelope=ste, sr=sr, hop_length=hop_length, backtrack=False)
+    onsets = librosa.onset.onset_detect(y=y, onset_envelope=ste, sr=sr, hop_length=hop_length, backtrack=False)
 
     # Load dominant frequencies
     data = np.load(dominant_frequencies_path)
@@ -83,7 +83,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     # Filter out None values (unrecognized frequencies)
     filtered_notes = []
     for note in notes:
-        if note in expected_hz_values.keys():
+        if note in expected_hz_values.keys() or note == "Rest":
             filtered_notes.append(note)
         else:
             filtered_notes.append(None)
@@ -123,6 +123,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     beat_duration = 60 / tempo
 
     # Match segments with notes based on onsets and filtered notes
+    print(onsets)
     matched_notes = []
     for i, onset in enumerate(onsets):
         duration = librosa.get_duration(y=segments[i], sr=sr)
