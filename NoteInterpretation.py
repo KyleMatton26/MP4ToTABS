@@ -89,7 +89,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
             filtered_notes.append(None)
 
     # Function to classify note durations based on STE and tempo
-    def classify_note_duration(duration, beat_duration, tolerance=0.1):
+    def classify_note_duration(duration, beat_duration, tolerance=0.10):
         if duration >= (4 - tolerance) * beat_duration:
             return "Whole Note"
         elif duration >= (2 - tolerance) * beat_duration:
@@ -119,8 +119,22 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     segments = segment_audio(y, onsets, hop_length)
 
     # Calculate tempo. Documentation: https://librosa.org/doc/latest/generated/librosa.beat.beat_track.html
-    tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length)
+    # Refine onset envelope
+    onset_env = librosa.util.normalize(onset_env)
+    # Extract the tempo using the refined onset envelope
+    tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop_length)
+    tempo = int(tempo)
+    print(f"Estimated tempo: {tempo} BPM")
+    
     beat_duration = 60 / tempo
+
+    print(tempo)
+    print((4 - 0.1) * beat_duration)
+    print((2 - .1) * beat_duration)
+    print((1 - .1) * beat_duration)
+    print((.5 - .1) * beat_duration)
+    print((.25 - .1) * beat_duration)
 
     # Match segments with notes based on onsets and filtered notes
     print(onsets)
