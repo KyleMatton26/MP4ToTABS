@@ -158,8 +158,8 @@ expected_hz_values = {
 
 # Loop through each frame and add the dominant frequency to the array
 for i in range(number_of_frames):
-    start = i * hop_size + int(first_onset_time * sr) #off sets the starting frame to start on the first onset
-    #start = i * hop_size + int(first_onset_time * sr) - (int(first_onset_time * sr) % hop_size) #Suggested by GPT, need to think if it's actually good
+    #start = i * hop_size + int(first_onset_time * sr) #off sets the starting frame to start on the first onset
+    start = i * hop_size + (int(first_onset_time * sr) % hop_size) #Suggested by GPT, need to think if it's actually good
     end = start + frame_size
     frame = data[start:end]
     
@@ -204,12 +204,16 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
         
         
     """
-    
-    for i in range(int(number_of_frames/2)):
-        frame_start_time = (i * hop_size/samplerate*2)
+    frame_counter = 1
+    for i in range(int(number_of_frames)):
+        frame_start_time = (i * hop_size/samplerate)
     #for i in range(int(number_of_frames / what_type_of_note_modifier / 2)):
         #frame_start_time = (i * hop_size * what_type_of_note_modifier * 2) / samplerate
-        plt.axvline(x=frame_start_time + first_onset_time, color='b', linestyle='--', alpha=0.5)
+        if (frame_counter % 2 == 0):
+            plt.axvline(x=frame_start_time + first_onset_time, color='b', linestyle='--', alpha=0.5)
+        else:
+            plt.axvline(x=frame_start_time + first_onset_time, color='c', linestyle='--', alpha=0.5)
+        frame_counter += 1
     
     
     #plt.axvline(x=first_onset_time, color='b', linestyle='--', alpha=0.5)
@@ -229,4 +233,4 @@ print(f"How many frames we have: {number_of_frames}")
 
 
 #uncomment this to see the graph
-#make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
+make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
