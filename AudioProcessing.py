@@ -39,6 +39,9 @@ onset_times = librosa.frames_to_time(onset_frames, sr=sr, hop_length=512)
 print("Detected onsets at times:", onset_times)
 first_onset_time = onset_times[0] - 0.06657596 #Added the "- 0.06657596" because that was the discrepency on the 120BPM Test
 
+def get_onset_frames():
+    return onset_frames
+
 #Chunk to get the tempo
 # Parameters
 hop_length = 256  # Adjust as needed
@@ -49,6 +52,9 @@ onset_env = librosa.util.normalize(onset_env)
 tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop_length)
 tempo = int(tempo)
 print(f"Estimated tempo: {tempo} BPM")
+
+def get_tempo():
+    return tempo
 
 #NEED TO TAKE THE TEMPO AND USE IT WITH THE SAMPLE RATE TO GET HOW MANY SAMPLES ARE IN A 32nd NOTE
 #SET THAT AS THE FRAME SIZE THEN MAKE HOP SIZE HALF THAT
@@ -82,9 +88,8 @@ hop_size = int(frame_size/2) #1024 was old hop size
 
 print(f"Estimated frame size: {frame_size} samples per frame")
 
-
-
-
+def get_frame_size():
+    return frame_size
 
 def get_samplerate():
     return samplerate
@@ -224,4 +229,4 @@ print(f"How many frames we have: {number_of_frames}")
 
 
 #uncomment this to see the graph
-make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
+#make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)

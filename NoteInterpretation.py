@@ -1,6 +1,7 @@
 import numpy as np
 import librosa
-from AudioProcessing import get_frame_size, get_hop_size
+from AudioProcessing import get_frame_size, get_hop_size, get_onset_frames, get_tempo
+import matplotlib.pyplot as plt
 
 def get_matched_notes(audio_path, dominant_frequencies_path):
 
@@ -19,6 +20,8 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     # Parameters for STE calculation 
     window_size = get_frame_size()
     hop_length = get_hop_size()
+    print(window_size)
+    print(hop_length)
 
     # Compute Short-Time Energy (STE)
     def compute_ste(signal, window_size, hop_length):
@@ -37,7 +40,11 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     ste = compute_ste(y, window_size, hop_length)
 
     # Detect note onsets using STE. Documentation: https://librosa.org/doc/main/generated/librosa.onset.onset_detect.html
-    onsets = librosa.onset.onset_detect(y=y, onset_envelope=ste, sr=sr, hop_length=hop_length, backtrack=False)
+    #onsets = librosa.onset.onset_detect(y=y, onset_envelope=ste, sr=sr, hop_length=hop_length, backtrack=False)
+    #print(onsets)
+
+    #Not using STE for testing
+    onsets = get_onset_frames()
 
     # Load dominant frequencies
     data = np.load(dominant_frequencies_path)
@@ -102,7 +109,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
             return "Sixteenth Note"
         else:
             return "No note detected"
-
+        
     # Segment audio based on detected onsets
     def segment_audio(y, onsets, hop_length):
         segments = []
@@ -118,13 +125,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     # Segment the audio
     segments = segment_audio(y, onsets, hop_length)
 
-    # Calculate tempo. Documentation: https://librosa.org/doc/latest/generated/librosa.beat.beat_track.html
-    onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length)
-    # Refine onset envelope
-    onset_env = librosa.util.normalize(onset_env)
-    # Extract the tempo using the refined onset envelope
-    tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop_length)
-    tempo = int(tempo)
+    tempo = get_tempo()
     print(f"Estimated tempo: {tempo} BPM")
     
     beat_duration = 60 / tempo
