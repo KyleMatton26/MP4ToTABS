@@ -1,6 +1,6 @@
 import numpy as np
 import librosa
-from AudioProcessing import get_frame_size, get_hop_size, get_onset_frames, get_tempo
+from AudioProcessing import get_frame_size, get_hop_length, get_onset_frames, get_tempo
 import matplotlib.pyplot as plt
 
 def get_matched_notes(audio_path, dominant_frequencies_path):
@@ -18,8 +18,8 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     y, sr = librosa.load(audio_path)
 
     # Parameters for STE calculation 
-    window_size = get_frame_size()
-    hop_length = get_hop_size()
+    window_size = 512
+    hop_length = get_hop_length()
     print(window_size)
     print(hop_length)
 
@@ -40,15 +40,16 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     ste = compute_ste(y, window_size, hop_length)
 
     # Detect note onsets using STE. Documentation: https://librosa.org/doc/main/generated/librosa.onset.onset_detect.html
-    #onsets = librosa.onset.onset_detect(y=y, onset_envelope=ste, sr=sr, hop_length=hop_length, backtrack=False)
+    onsets = librosa.onset.onset_detect(y=y, onset_envelope=ste, sr=sr, hop_length=hop_length)
     #print(onsets)
 
     #Not using STE for testing
-    onsets = get_onset_frames()
+    #onsets = get_onset_frames()
 
     # Load dominant frequencies
     data = np.load(dominant_frequencies_path)
     frequencies = data["frequencies"]
+    print(frequencies)
 
     # Table with expected Hz values for the notes
     expected_hz_values = {
@@ -86,6 +87,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
 
     # Interpret frequencies into notes
     notes = interpret_frequencies(frequencies, expected_hz_values)
+    print(notes)
 
     # Filter out None values (unrecognized frequencies)
     filtered_notes = []
@@ -94,6 +96,10 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
             filtered_notes.append(note)
         else:
             filtered_notes.append(None)
+
+    print(filtered_notes)
+
+    
 
     # Function to classify note durations based on STE and tempo
     def classify_note_duration(duration, beat_duration, tolerance=0.10):
