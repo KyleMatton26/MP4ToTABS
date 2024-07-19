@@ -92,9 +92,6 @@ def get_samplerate():
 def get_hop_size():
     return hop_size
 
-def get_frame_size():
-    return frame_size
-
 # Function to apply median filtering to smooth the frequency plot. Documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.medfilt.html
 def median_smooth(frequencies, kernel_size=15):
     smoothed_frequencies = medfilt(frequencies, kernel_size)
@@ -156,7 +153,7 @@ expected_hz_values = {
 
 # Loop through each frame and add the dominant frequency to the array
 for i in range(number_of_frames):
-    start = i * hop_size + int(first_onset_time * sr) #SLKDFJDS:LKFJDSKLFJSLDKJHLSKJDHFLKSDHJFJK
+    start = i * hop_size + int(first_onset_time * sr) #off sets the starting frame to start on the first onset
     end = start + frame_size
     frame = data[start:end]
     
@@ -196,6 +193,8 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
     for i in range(number_of_frames):
         frame_start_time = (i * hop_size) / samplerate
         plt.axvline(x=frame_start_time, color='b', linestyle='--', alpha=0.5)
+        
+        
     """
     for i in range(int(number_of_frames / 16)):
         frame_start_time = (i * hop_size * 16) / samplerate
