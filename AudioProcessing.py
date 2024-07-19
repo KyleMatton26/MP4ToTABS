@@ -37,7 +37,7 @@ y, sr = librosa.load(wav_file)
 onset_frames = librosa.onset.onset_detect(y=y, sr=sr, hop_length=512)
 onset_times = librosa.frames_to_time(onset_frames, sr=sr, hop_length=512)
 print("Detected onsets at times:", onset_times)
-first_onset_time = onset_times[0]
+first_onset_time = onset_times[0] - 0.06657596 #Added the "- 0.06657596" because that was the discrepency on the 120BPM Test
 
 #Chunk to get the tempo
 # Parameters
@@ -71,9 +71,9 @@ def make_plot(samplerate, data):
     
 #make_plot(samplerate, data)
 
-
+what_type_of_note_modifier = 1 #1 - Quarter : 2 - Eigth : 4 - 16th : 8 - 32nd
 beats_per_second = tempo/60
-quarter_note_duration = 1/(beats_per_second*8) #*2 for 8th note : *4 for 16th note : *1 for quarter note
+quarter_note_duration = 1/(beats_per_second*what_type_of_note_modifier) #*2 for 8th note : *4 for 16th note : *1 for quarter note
 print(f"Estimated quarter note duration: {quarter_note_duration} seconds")
 #Number of samples in each frame - This typically is a power of 2 between 256-8192 (Stated in the video u posted)
 frame_size = int(quarter_note_duration*samplerate) #2048 was old frame size
@@ -154,6 +154,7 @@ expected_hz_values = {
 # Loop through each frame and add the dominant frequency to the array
 for i in range(number_of_frames):
     start = i * hop_size + int(first_onset_time * sr) #off sets the starting frame to start on the first onset
+    #start = i * hop_size + int(first_onset_time * sr) - (int(first_onset_time * sr) % hop_size) #Suggested by GPT, need to think if it's actually good
     end = start + frame_size
     frame = data[start:end]
     
@@ -170,8 +171,10 @@ for i in range(number_of_frames):
     times.append(current_time)
 
 # Apply median filtering to smooth the frequency plot
-smoothed_frequencies = median_smooth(frequencies, kernel_size=15)  # Adjust kernel_size as needed: Larger kernel size means a larger window to take the median of. Would miss small changes but would be more accurate for longer notes if kernel size is bigger
-
+#kernel_size_test=int(frame_size/6000)*2+1 #Attempt to make kernel size based on the frame size
+kernel_size_test = 1
+smoothed_frequencies = median_smooth(frequencies, kernel_size=kernel_size_test)#=int(frame_size/6000)*2+1)#15 was previous  # Adjust kernel_size as needed: Larger kernel size means a larger window to take the median of. Would miss small changes but would be more accurate for longer notes if kernel size is bigger
+print(f"Kernel size used for medfilt: {kernel_size_test}")
 # Save the smoothed frequencies and times to a file for further analysis 
 #Maybe try arrays later
 np.savez("dominant_frequencies.npz", times=times, frequencies=smoothed_frequencies)
@@ -196,9 +199,12 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
         
         
     """
-    for i in range(int(number_of_frames / 16)):
-        frame_start_time = (i * hop_size * 16) / samplerate
-        plt.axvline(x=frame_start_time, color='b', linestyle='--', alpha=0.5)
+    
+    for i in range(int(number_of_frames/2)):
+        frame_start_time = (i * hop_size/samplerate*2)
+    #for i in range(int(number_of_frames / what_type_of_note_modifier / 2)):
+        #frame_start_time = (i * hop_size * what_type_of_note_modifier * 2) / samplerate
+        plt.axvline(x=frame_start_time + first_onset_time, color='b', linestyle='--', alpha=0.5)
     
     
     #plt.axvline(x=first_onset_time, color='b', linestyle='--', alpha=0.5)
@@ -207,6 +213,15 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
     plt.legend()
     plt.grid(True)
     plt.show()
+
+
+
+print(f"Sample Per Second: {samplerate}")
+print(f"Samples Per Frame: {frame_size}")
+print(f"Seconds Per Frame: {frame_size / samplerate}")
+print(f"How many frames we have: {number_of_frames}")
+#print(f"Sample Rate: {samplerate}")
+
 
 #uncomment this to see the graph
 make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
