@@ -94,8 +94,8 @@ def get_frame_size():
 def get_samplerate():
     return samplerate
 
-def get_hop_size():
-    return hop_size
+def get_hop_length():
+    return hop_length
 
 # Function to apply median filtering to smooth the frequency plot. Documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.medfilt.html
 def median_smooth(frequencies, kernel_size=15):
@@ -233,4 +233,4 @@ print(f"How many frames we have: {number_of_frames}")
 
 
 #uncomment this to see the graph
-make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
+#make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)

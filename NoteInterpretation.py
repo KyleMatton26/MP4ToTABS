@@ -1,6 +1,6 @@
 import numpy as np
 import librosa
-from AudioProcessing import get_frame_size, get_hop_length, get_onset_frames, get_tempo
+from AudioProcessing import get_frame_size, get_hop_length, get_onset_frames, get_tempo, get_samplerate
 import matplotlib.pyplot as plt
 
 def get_matched_notes(audio_path, dominant_frequencies_path):
@@ -20,6 +20,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     # Parameters for STE calculation 
     window_size = 512
     hop_length = get_hop_length()
+    samplerate = get_samplerate()
     print(window_size)
     print(hop_length)
 
@@ -49,7 +50,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     # Load dominant frequencies
     data = np.load(dominant_frequencies_path)
     frequencies = data["frequencies"]
-    print(frequencies)
+    print(f"Frequencies: {frequencies}")
 
     # Table with expected Hz values for the notes
     expected_hz_values = {
@@ -87,7 +88,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
 
     # Interpret frequencies into notes
     notes = interpret_frequencies(frequencies, expected_hz_values)
-    print(notes)
+    print(f"Notes: {notes}")
 
     # Filter out None values (unrecognized frequencies)
     filtered_notes = []
@@ -97,12 +98,12 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
         else:
             filtered_notes.append(None)
 
-    print(filtered_notes)
+    print(f"Filtered Notes: {filtered_notes}")
 
     
 
     # Function to classify note durations based on STE and tempo
-    def classify_note_duration(duration, beat_duration, tolerance=0.10):
+    def classify_note_duration(duration, beat_duration, tolerance=0.10): #duration >= (4 - tolerance) * beat_duration: is standard changed to get custom
         if duration >= (4 - tolerance) * beat_duration:
             return "Whole Note"
         elif duration >= (2 - tolerance) * beat_duration:
@@ -137,15 +138,18 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     beat_duration = 60 / tempo
 
     print(tempo)
-    print((4 - 0.1) * beat_duration)
-    print((2 - .1) * beat_duration)
-    print((1 - .1) * beat_duration)
-    print((.5 - .1) * beat_duration)
-    print((.25 - .1) * beat_duration)
+    print(f"Whole Note Min: {(4 - 0.1) * beat_duration}")
+    print(f"Half Note Min: {(2 - 0.1) * beat_duration}")
+    print(f"Quarter Note Min: {(1 - 0.1) * beat_duration}")
+    print(f"Eigth Note Min: {(.5 - 0.1) * beat_duration}")
+    print(f"Sixteenth Note Min: {(.25 - 0.1) * beat_duration}")
 
     # Match segments with notes based on onsets and filtered notes
-    print(onsets)
+    print(f"Onsets small frame indecies: {onsets}")
+    print(f"Seconds of onsets {onsets * hop_length * 2 / samplerate}")
     matched_notes = []
+    
+    """
     for i, onset in enumerate(onsets):
         duration = librosa.get_duration(y=segments[i], sr=sr)
         note_type = classify_note_duration(duration, beat_duration)
@@ -154,11 +158,22 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
         if onset < len(filtered_notes) and filtered_notes[onset]:
             note = filtered_notes[onset]
             matched_notes.append((note, duration, note_type))
+    """
+    
+    # Correctly match the notes with their durations
+    for i, onset in enumerate(onsets):
+        duration = librosa.get_duration(y=segments[i], sr=sr)
+        note_type = classify_note_duration(duration, beat_duration)
+
+        # Ensure onset is within range of filtered_notes and skip if no note is detected
+        if i < len(filtered_notes) and filtered_notes[i]:
+            note = filtered_notes[i]
+            matched_notes.append((note, duration, note_type))
 
     return matched_notes
 
 if __name__ == "__main__":
-    audio_path = "HotCrossBuns.mp3"
+    audio_path = "HotCrossBuns.wav"
     #audio_path = "TwinkleTwinkleLittleStar.wav"
     dominant_frequencies_path = "dominant_frequencies.npz"
     matched_notes = get_matched_notes(audio_path, dominant_frequencies_path)
