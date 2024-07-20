@@ -68,23 +68,50 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
         'A4': 440.00,
         'F4': 349.23
     }
-
-    # Function to interpret frequencies into notes
+    
+    # Binary search function to find the closest frequency
+    def binary_search_closest(arr, target):
+        left, right = 0, len(arr) - 1
+        if target <= arr[left]:
+            return left
+        if target >= arr[right]:
+            return right
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == target:
+                return mid
+            elif arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        # Now left > right, arr[right] < target < arr[left]
+        if left < len(arr) and abs(arr[left] - target) < abs(arr[right] - target):
+            return left
+        return right
+    #function to interpret frequencies
     def interpret_frequencies(frequencies, expected_hz_values):
         notes = []
+        # Convert the dictionary into a list of tuples
+        sorted_hz_values = list(expected_hz_values.items())
+        frequencies_of_notes = [item[1] for item in sorted_hz_values]
+        note_names = [item[0] for item in sorted_hz_values]
         for freq in frequencies:
             note = None
-            for note_name, hz_value in expected_hz_values.items():
-                #trying to make the error margin better
-                error_margin = hz_value * 0.03
-                if abs(freq - hz_value) <= error_margin:
-                    note = note_name
-                    break
+            if freq <= 10.0:
+                note = "Rest"
+                continue
+            closest_frequency_match_index = binary_search_closest(frequencies_of_notes, freq)
+            error_margin = frequencies_of_notes[closest_frequency_match_index] * 0.03
+            print(f"The frequency of the note matching the closest: {frequencies_of_notes[closest_frequency_match_index]}; The actual frequency: {freq}")
+            if abs(freq - frequencies_of_notes[closest_frequency_match_index]) <= error_margin:
+                note = note_names[closest_frequency_match_index]
             #Check if a note is a rest. Might have to lower the threshold from 30 so it doesnt confuse really low notes as rests 
             if note is None and freq < 30:
                 note = "Rest"
             notes.append(note)
         return notes
+        
+
 
     # Interpret frequencies into notes
     notes = interpret_frequencies(frequencies, expected_hz_values)
@@ -148,17 +175,6 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     print(f"Onsets small frame indecies: {onsets}")
     print(f"Seconds of onsets {onsets * hop_length * 2 / samplerate}")
     matched_notes = []
-    
-    """
-    for i, onset in enumerate(onsets):
-        duration = librosa.get_duration(y=segments[i], sr=sr)
-        note_type = classify_note_duration(duration, beat_duration)
-
-        # Ensure onset is within range of filtered_notes and skip if no note is detected
-        if onset < len(filtered_notes) and filtered_notes[onset]:
-            note = filtered_notes[onset]
-            matched_notes.append((note, duration, note_type))
-    """
     
     # Correctly match the notes with their durations
     for i, onset in enumerate(onsets):
