@@ -185,7 +185,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
             segments.pop(i)
 
     # Correctly match the notes with their durations
-    for i, onset in enumerate(segments):
+    for i, _ in enumerate(segments):
         duration = librosa.get_duration(y=segments[i], sr=sr)
         note_type = classify_note_duration(duration, beat_duration)
 
