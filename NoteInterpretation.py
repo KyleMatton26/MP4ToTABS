@@ -175,22 +175,29 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     print(frame_duration)
     print(len(onsets))
     note_index = 0
+    print(len(segments))
+
     
+    #Remove bad segments 
+    for i in range(len(segments) - 1, -1, -1):
+        duration = librosa.get_duration(y=segments[i], sr=sr)
+        if duration < 0.10:
+            segments.pop(i)
 
     # Correctly match the notes with their durations
-    for i, onset in enumerate(onsets):
+    for i, onset in enumerate(segments):
         duration = librosa.get_duration(y=segments[i], sr=sr)
         note_type = classify_note_duration(duration, beat_duration)
 
-        #Current Problem: Some of the durations of the segments are 0.03482.... : This is leading to no index shift which is messing up note selection
+        #Current problem: the +1 to the index shift. sometimes the index shift should have a +1 and sometimes it shouldnt. for example when a half note is 5 frames long it needs a +1 and when a half note is 4 frames long it doesnt need a +1
         #Also, I chose to use duration instead of note_type because note_type could be inconsistent because sometimes, for example, a half note is 5 frames when other half notes are four frames.
         if note_index < len(filtered_notes):
             matched_notes.append((filtered_notes[note_index], duration, note_type))
             print("Duration: " + str(duration))
-            index_shift = int(duration / frame_duration)
-            print("Index Shift: " + str(index_shift))
+            index_shift = round(duration / frame_duration) +1
+            #print("Index Shift: " + str(index_shift))
             note_index += index_shift
-            print("Note Index: " + str(note_index))
+            #print("Note Index: " + str(note_index))
 
     return matched_notes 
 
