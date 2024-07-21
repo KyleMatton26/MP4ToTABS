@@ -1,6 +1,6 @@
 import numpy as np
 import librosa
-from AudioProcessing import get_frame_size, get_hop_length, get_onset_frames, get_tempo, get_samplerate
+from AudioProcessing import get_frame_size, get_hop_length, get_onset_frames, get_tempo, get_samplerate, get_frame_duration
 import matplotlib.pyplot as plt
 
 def get_matched_notes(audio_path, dominant_frequencies_path):
@@ -171,18 +171,24 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     print(f"Onsets small frame indecies: {onsets}")
     print(f"Seconds of onsets {onsets * hop_length * 2 / samplerate}")
     matched_notes = []
+    frame_duration = get_frame_duration()
+    print(frame_duration)
+    print(len(onsets))
+    note_index = 0
     
+
     # Correctly match the notes with their durations
     for i, onset in enumerate(onsets):
         duration = librosa.get_duration(y=segments[i], sr=sr)
         note_type = classify_note_duration(duration, beat_duration)
+        
+        if note_index < len(filtered_notes):
+            matched_notes.append((filtered_notes[note_index], duration, note_type))
+            index_shift = int(duration / frame_duration)
+            note_index += index_shift
+            print(note_index)
 
-        # Ensure onset is within range of filtered_notes and skip if no note is detected
-        if i < len(filtered_notes) and filtered_notes[i]:
-            note = filtered_notes[i]
-            matched_notes.append((note, duration, note_type))
-
-    return matched_notes
+    return matched_notes 
 
 if __name__ == "__main__":
     audio_path = "HotCrossBuns.wav"

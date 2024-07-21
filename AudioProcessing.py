@@ -53,6 +53,7 @@ tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=h
 tempo = int(tempo)
 print(f"Estimated tempo: {tempo} BPM")
 
+
 def get_tempo():
     return tempo
 
@@ -96,6 +97,13 @@ def get_samplerate():
 
 def get_hop_length():
     return hop_length
+
+# Compute and print the frame duration in seconds
+frame_duration = hop_size / samplerate
+print(f"Frame duration: {frame_duration} seconds")
+
+def get_frame_duration():
+    return frame_duration
 
 # Function to apply median filtering to smooth the frequency plot. Documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.medfilt.html
 def median_smooth(frequencies, kernel_size=15):
