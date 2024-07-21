@@ -192,10 +192,25 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
         #Current problem: the +1 to the index shift. sometimes the index shift should have a +1 and sometimes it shouldnt. for example when a half note is 5 frames long it needs a +1 and when a half note is 4 frames long it doesnt need a +1
         #Also, I chose to use duration instead of note_type because note_type could be inconsistent because sometimes, for example, a half note is 5 frames when other half notes are four frames.
         if note_index < len(filtered_notes):
-            matched_notes.append((filtered_notes[note_index], duration, note_type))
+            note = filtered_notes[note_index]
+            matched_notes.append((note, duration, note_type))
             print("Duration: " + str(duration))
-            index_shift = round(duration / frame_duration) +1
-            #print("Index Shift: " + str(index_shift))
+            i = note_index + 1
+            count = 1
+            while note == filtered_notes[note_index] and i < len(filtered_notes):
+                if filtered_notes[i] == note:
+                    count += 1
+                    note = filtered_notes[i]
+                    i += 1
+                else:
+                    break
+                    
+            if count % 2 == 1 and count < 7:
+                index_shift = round(duration / frame_duration) +1
+            else:
+                index_shift = round(duration / frame_duration) 
+
+            print("Index Shift: " + str(index_shift))
             note_index += index_shift
             #print("Note Index: " + str(note_index))
 
