@@ -126,7 +126,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     
 
     # Function to classify note durations based on STE and tempo
-    def classify_note_duration(duration, beat_duration, tolerance=0.10): #duration >= (4 - tolerance) * beat_duration: is standard changed to get custom
+    def classify_note_duration(duration, beat_duration, tolerance=0.30): #duration >= (4 - tolerance) * beat_duration: is standard changed to get custom
         if duration >= (4 - tolerance) * beat_duration:
             return "Whole Note"
         elif duration >= (2 - tolerance) * beat_duration:
@@ -207,19 +207,19 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
                     break
                     
             if count % 2 == 1 and count < 7:
-                index_shift = round(duration / frame_duration) +1
+                index_shift = round(duration / frame_duration) + 1
             else:
                 index_shift = round(duration / frame_duration) 
 
             print("Index Shift: " + str(index_shift))
             note_index += index_shift
-            #print("Note Index: " + str(note_index))
+            print("Note Index: " + str(note_index))
 
     return matched_notes 
 
 if __name__ == "__main__":
-    audio_path = "HotCrossBuns.wav"
-    #audio_path = "TwinkleTwinkleLittleStar.wav"
+    #audio_path = "HotCrossBuns.wav"
+    audio_path = "TwinkleTwinkleLittleStar.wav"
     dominant_frequencies_path = "dominant_frequencies.npz"
     matched_notes = get_matched_notes(audio_path, dominant_frequencies_path)
 
