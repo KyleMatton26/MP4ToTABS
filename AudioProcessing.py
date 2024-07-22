@@ -53,7 +53,6 @@ tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=h
 tempo = int(tempo)
 print(f"Estimated tempo: {tempo} BPM")
 
-
 def get_tempo():
     return tempo
 
@@ -85,7 +84,7 @@ print(f"Estimated quarter note duration: {quarter_note_duration} seconds")
 #Number of samples in each frame - This typically is a power of 2 between 256-8192 (Stated in the video u posted)
 frame_size = int(quarter_note_duration*samplerate) #2048 was old frame size
 #Frame 1: 0-2048, Frame 2: 1024 - 3072. Hop size is the amount of samples you skip over to start the next frame. I chose 1024 because typically each frame should contain 50% overlap. Smaller hop size, more overlap. Larger hop size, less overlap.
-hop_size = int(frame_size/2) #1024 was old hop size
+hop_size = int(frame_size) #1024 was old hop size
 
 print(f"Estimated frame size: {frame_size} samples per frame")
 
@@ -133,8 +132,7 @@ def get_domiant_frequency(frame, samplerate):
 #(len(data) - frame_size): This is done because this tells us the amount of full frames we will be processing. The last frame will start at (len(data) - frame_size) and continue until the end.
 # // hop_size: This is used to see how many hops will go into (len(data) - frame_size). This determines the number of frames that will go into our audio data
 #We + 1 because we have to include the initial frame before the first hop
-number_of_frames = ((len(data) - frame_size) // hop_size) + 1
-
+number_of_frames = len(data) // frame_size
 # Array to store the frequencies from the audio file
 frequencies = []
 times = []
@@ -166,28 +164,33 @@ expected_hz_values = {
 
 # Loop through each frame and add the dominant frequency to the array
 for i in range(number_of_frames):
-    #start = i * hop_size + int(first_onset_time * sr) #off sets the starting frame to start on the first onset
-    start = i * hop_size + (int(first_onset_time * sr) % hop_size) #Suggested by GPT, need to think if it's actually good
+    start = i * hop_size + int(first_onset_time * samplerate) % hop_size
     end = start + frame_size
-    frame = data[start:end]
-    
+
+    if end > len(data):
+        frame = np.pad(data[start:], (0, end - len(data)), 'constant')
+    else:
+        frame = data[start:end]
+
     if len(frame) != frame_size:
         print(f"Skipping frame {i} due to incorrect size: {len(frame)}")
         continue
         #Note: This is skipping the last frame entirely. Will add padding to last frame to be processed at a later time
-    
+
     dominant_frequency = get_domiant_frequency(frame, samplerate)
     frequencies.append(dominant_frequency)
-    
-    # Calculate time for current frame
+
     current_time = start / samplerate
     times.append(current_time)
 
+    
+    
+    
 # Apply median filtering to smooth the frequency plot
 #kernel_size_test=int(frame_size/6000)*2+1 #Attempt to make kernel size based on the frame size
-kernel_size_test = 1
-smoothed_frequencies = median_smooth(frequencies, kernel_size=kernel_size_test)#=int(frame_size/6000)*2+1)#15 was previous  # Adjust kernel_size as needed: Larger kernel size means a larger window to take the median of. Would miss small changes but would be more accurate for longer notes if kernel size is bigger
-print(f"Kernel size used for medfilt: {kernel_size_test}")
+#kernel_size_test = 1
+smoothed_frequencies = frequencies #median_smooth(frequencies, kernel_size=kernel_size_test)#=int(frame_size/6000)*2+1)#15 was previous  # Adjust kernel_size as needed: Larger kernel size means a larger window to take the median of. Would miss small changes but would be more accurate for longer notes if kernel size is bigger
+#print(f"Kernel size used for medfilt: {kernel_size_test}")
 # Save the smoothed frequencies and times to a file for further analysis 
 #Maybe try arrays later
 np.savez("dominant_frequencies.npz", times=times, frequencies=smoothed_frequencies)
@@ -212,16 +215,17 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
         
         
     """
+    
     frame_counter = 1
     for i in range(int(number_of_frames)):
         frame_start_time = (i * hop_size/samplerate)
     #for i in range(int(number_of_frames / what_type_of_note_modifier / 2)):
         #frame_start_time = (i * hop_size * what_type_of_note_modifier * 2) / samplerate
-        if (frame_counter % 2 == 0):
-            plt.axvline(x=frame_start_time + first_onset_time, color='b', linestyle='--', alpha=0.5)
-        else:
-            plt.axvline(x=frame_start_time + first_onset_time, color='c', linestyle='--', alpha=0.5)
-        frame_counter += 1
+    #    if (frame_counter % 2 == 0):
+        plt.axvline(x=frame_start_time + first_onset_time, color='b', linestyle='--', alpha=0.5)
+    #    else:
+    #        plt.axvline(x=frame_start_time + first_onset_time, color='c', linestyle='--', alpha=0.5)
+    #    frame_counter += 1
     
     
     #plt.axvline(x=first_onset_time, color='b', linestyle='--', alpha=0.5)
@@ -241,4 +245,4 @@ print(f"How many frames we have: {number_of_frames}")
 
 
 #uncomment this to see the graph
-#make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
+make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)

@@ -93,7 +93,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
         note_names = [item[0] for item in sorted_hz_values]
         for freq in frequencies:
             note = None
-            if freq <= 10.0:
+            if freq <= 25.0:
                 note = "Rest"
                 continue
             closest_frequency_match_index = binary_search_closest(frequencies_of_notes, freq)
@@ -126,16 +126,16 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     
 
     # Function to classify note durations based on STE and tempo
-    def classify_note_duration(duration, beat_duration, tolerance=0.30): #duration >= (4 - tolerance) * beat_duration: is standard changed to get custom
-        if duration >= (4 - tolerance) * beat_duration:
+    def classify_note_duration(duration, beat_duration): #duration >= (4 - tolerance) * beat_duration: is standard changed to get custom
+        if duration >= (4 - 0.5) * beat_duration:
             return "Whole Note"
-        elif duration >= (2 - tolerance) * beat_duration:
+        elif duration >= (2 - 0.25) * beat_duration:
             return "Half Note"
-        elif duration >= (1 - tolerance) * beat_duration:
+        elif duration >= (1 - 0.125) * beat_duration:
             return "Quarter Note"
-        elif duration >= (0.5 - tolerance) * beat_duration:
+        elif duration >= (0.5 - 0.0625) * beat_duration:
             return "Eighth Note"
-        elif duration >= (0.25 - tolerance) * beat_duration:
+        elif duration >= (0.25 - 0.03125) * beat_duration:
             return "Sixteenth Note"
         else:
             return "No note detected"
