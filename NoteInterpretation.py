@@ -190,6 +190,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
         note_type = classify_note_duration(duration, beat_duration)
 
         #Current problem: the +1 to the index shift. sometimes the index shift should have a +1 and sometimes it shouldnt. for example when a half note is 5 frames long it needs a +1 and when a half note is 4 frames long it doesnt need a +1
+        #Update to problem: For twinkle twinkle, there are 3 frames together for the first 2 quarter notes. This approach does not take that into account. Now we would need a condition to add a -1. Might be better to find a different solution
         #Also, I chose to use duration instead of note_type because note_type could be inconsistent because sometimes, for example, a half note is 5 frames when other half notes are four frames.
         if note_index < len(filtered_notes):
             note = filtered_notes[note_index]
