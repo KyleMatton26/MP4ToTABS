@@ -129,13 +129,13 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
     def classify_note_duration(duration, beat_duration): #duration >= (4 - tolerance) * beat_duration: is standard changed to get custom
         if duration >= (4 - 0.5) * beat_duration:
             return "Whole Note"
-        elif duration >= (2 - 0.25) * beat_duration:
+        elif duration >= (2 - 0.3) * beat_duration:
             return "Half Note"
-        elif duration >= (1 - 0.125) * beat_duration:
+        elif duration >= (1 - 0.25) * beat_duration:
             return "Quarter Note"
-        elif duration >= (0.5 - 0.0625) * beat_duration:
+        elif duration >= (0.5 - 0.1) * beat_duration:
             return "Eighth Note"
-        elif duration >= (0.25 - 0.03125) * beat_duration:
+        elif duration >= (0.25 - 0.05) * beat_duration:
             return "Sixteenth Note"
         else:
             return "No note detected"
@@ -207,7 +207,7 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
                     break
                     
             if count % 2 == 1:
-                index_shift = (round(duration / frame_duration)) + 1
+                index_shift = (round(duration / frame_duration))# + 1
             else:
                 index_shift = (round(duration / frame_duration))
 

@@ -245,4 +245,4 @@ print(f"How many frames we have: {number_of_frames}")
 
 
 #uncomment this to see the graph
-make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
+#make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
