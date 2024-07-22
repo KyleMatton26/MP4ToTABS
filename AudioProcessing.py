@@ -10,7 +10,7 @@ import librosa
 
 # Storing the mp3 file
 mp3_file = "HotCrossBuns.mp3"
-#mp3_file = "TwinkleTwinkleLittleStar.mp3"
+#mp3_file = "ORIGINAL-TwinkleTwinkleLittleStar.mp3"
 
 # Check if the file exists
 if not os.path.exists(mp3_file):
@@ -78,7 +78,7 @@ def make_plot(samplerate, data):
     
 #make_plot(samplerate, data)
 
-what_type_of_note_modifier = 1 #1 - Quarter : 2 - Eigth : 4 - 16th : 8 - 32nd
+what_type_of_note_modifier = 4 #1 - Quarter : 2 - Eigth : 4 - 16th : 8 - 32nd
 beats_per_second = tempo/60
 quarter_note_duration = 1/(beats_per_second*what_type_of_note_modifier) #*2 for 8th note : *4 for 16th note : *1 for quarter note
 print(f"Estimated quarter note duration: {quarter_note_duration} seconds")
