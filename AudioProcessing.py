@@ -216,6 +216,8 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
         
     """
     
+    
+    
     frame_counter = 1
     for i in range(int(number_of_frames)):
         frame_start_time = (i * hop_size/samplerate)
@@ -235,8 +237,20 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
     plt.grid(True)
     plt.show()
 
-
-
+def plot_frequencies_vs_frame_index(frequencies):
+    # Create a list of frame indices
+    frame_indices = list(range(len(frequencies)))
+    
+    plt.figure(figsize=(12, 6))
+    plt.plot(frame_indices, frequencies, marker='o', linestyle='-', color='b')
+    plt.xlabel('Frame Index')
+    plt.ylabel('Dominant Frequency (Hz)')
+    plt.title('Dominant Frequency vs Frame Index')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    
+    
 print(f"Sample Per Second: {samplerate}")
 print(f"Samples Per Frame: {frame_size}")
 print(f"Seconds Per Frame: {frame_size / samplerate}")
@@ -244,5 +258,7 @@ print(f"How many frames we have: {number_of_frames}")
 #print(f"Sample Rate: {samplerate}")
 
 
+
 #uncomment this to see the graph
 #make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
+plot_frequencies_vs_frame_index(frequencies)
