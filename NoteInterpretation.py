@@ -123,6 +123,28 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
 
     print(f"Filtered Notes: {filtered_notes}")
 
+    def get_dict_of_notes(note_array):
+        note_dict = {}
+        if not note_array:
+            return note_dict
+
+        current_note = note_array[0]
+        current_count = 1
+        entry_number = 1
+
+        for note in note_array[1:]:
+            if note == current_note:
+                current_count += 1
+            else:
+                note_dict[entry_number] = f"{current_note}: {current_count}"
+                entry_number += 1
+                current_note = note
+                current_count = 1
+
+        note_dict[entry_number] = f"{current_note}: {current_count}"
+    
+        return note_dict
+                
     
 
     # Function to classify note durations based on STE and tempo
@@ -214,6 +236,8 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
             print("Index Shift: " + str(index_shift))
             note_index += index_shift
             print("Note Index: " + str(note_index))
+
+    print(get_dict_of_notes(filtered_notes))
 
     return matched_notes 
 
