@@ -189,10 +189,14 @@ frame_correction_counter = 0
 for i in range(len(frames_with_onsets)):
     frames_with_onsets[i] -= frame_correction_counter
     print(f"AHHHHHHHHH: {frames_with_onsets[i]}")
-    if i % 2 == 1:
+    if frames_with_onsets[i] % 2 == 1:
         frame_correction_counter += 1
-        i -= 1
+        frames_with_onsets[i] -= 1
         print(f"CHANGING: {frames_with_onsets[i]}")
+
+
+
+
 
 #Getting dominant frequency of those frames
 for i in frames_with_onsets:
