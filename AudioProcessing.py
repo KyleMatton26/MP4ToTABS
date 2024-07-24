@@ -34,10 +34,10 @@ audio.export(wav_file, format="wav")
 y, sr = librosa.load(wav_file)
 
 # Onset detection
-onset_frames = librosa.onset.onset_detect(y=y, sr=sr, hop_length=512)
-onset_times = librosa.frames_to_time(onset_frames, sr=sr, hop_length=512)
+onset_frames = librosa.onset.onset_detect(y=y, sr=sr, hop_length=512//32) #More accurate onset times
+onset_times = librosa.frames_to_time(onset_frames, sr=sr, hop_length=512//32)
 print("Detected onsets at times:", onset_times)
-first_onset_time = onset_times[0] - 0.06657596 #Added the "- 0.06657596" because that was the discrepency on the 120BPM Test
+first_onset_time = onset_times[0]# - 0.06657596 #Added the "- 0.06657596" because that was the discrepency on the 120BPM Test
 
 def get_onset_frames():
     return onset_frames
@@ -64,18 +64,6 @@ samplerate, data = wavfile.read(wav_file)
 
 print(f"Estimated sample rate: {samplerate} SPS")
 
-# Using the documentation to plot the WAV file
-def make_plot(samplerate, data):
-    length = data.shape[0] / samplerate
-    time = np.linspace(0., length, data.shape[0])
-
-    plt.plot(time, data, label="Mono channel")
-    plt.legend()
-    plt.xlabel("Time [s]")
-    plt.ylabel("Amplitude")
-    plt.show()
-    
-#make_plot(samplerate, data)
 
 what_type_of_note_modifier = 4 #1 - Quarter : 2 - Eigth : 4 - 16th : 8 - 32nd
 beats_per_second = tempo/60
@@ -85,6 +73,25 @@ print(f"Estimated quarter note duration: {quarter_note_duration} seconds")
 frame_size = int(quarter_note_duration*samplerate) #2048 was old frame size
 #Frame 1: 0-2048, Frame 2: 1024 - 3072. Hop size is the amount of samples you skip over to start the next frame. I chose 1024 because typically each frame should contain 50% overlap. Smaller hop size, more overlap. Larger hop size, less overlap.
 hop_size = int(frame_size) #1024 was old hop size
+
+
+# Using the documentation to plot the WAV file
+def make_plot(samplerate, data):
+    length = data.shape[0] / samplerate
+    time = np.linspace(0., length, data.shape[0])
+
+    #plt.plot((time*samplerate + int(first_onset_time * samplerate) % hop_size)/frame_size, data, label="Mono channel")   #FRAME = X AXIS
+    plt.plot(time, data, label="Mono channel")   #TIME  = X AXIS
+    plt.axvline(x=first_onset_time, color='b', linestyle='--', alpha=0.5)
+    for i in range(128):  #CHANGE HOW MANY FRAMES WE CAN SEE
+        plt.axvline(x=first_onset_time+i*frame_size/samplerate, color='b', linestyle='--', alpha=0.5)
+    plt.legend()
+    plt.xlabel("Time [s]")
+    plt.ylabel("Amplitude")
+    plt.show()
+    
+make_plot(samplerate, data)
+
 
 print(f"Estimated frame size: {frame_size} samples per frame")
 
@@ -96,6 +103,8 @@ def get_samplerate():
 
 def get_hop_length():
     return hop_length
+
+
 
 # Compute and print the frame duration in seconds
 frame_duration = hop_size / samplerate
@@ -166,17 +175,32 @@ expected_hz_values = {
 
 
 
+
+
+
 #ATTEMPTING TO DO SOMETHING HUGE :D
 #Seeing what big frames have an onset
 frames_with_onsets = []
 onset_frequencies_only = []
-frames_with_onsets = onset_times * samplerate // frame_size
-for frame in frames_with_onsets:
-    dom_freq = get_domiant_frequency(int(frame), samplerate)
+frames_with_onsets = np.round(onset_times * samplerate / frame_size)
+
+#Correcting the onset frames
+frame_correction_counter = 0
+for i in range(len(frames_with_onsets)):
+    frames_with_onsets[i] -= frame_correction_counter
+    print(f"AHHHHHHHHH: {frames_with_onsets[i]}")
+    if i % 2 == 1:
+        frame_correction_counter += 1
+        i -= 1
+        print(f"CHANGING: {frames_with_onsets[i]}")
+
+#Getting dominant frequency of those frames
+for i in frames_with_onsets:
+    frame_for_onsets = data[int(i*frame_size):int((i+1)*frame_size)]
+    dom_freq = get_domiant_frequency(frame_for_onsets, samplerate)
     onset_frequencies_only.append(dom_freq)
-
-
-
+def get_onset_only_freq():
+    return onset_frequencies_only
 
 
 
@@ -260,12 +284,11 @@ def make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected
     plt.grid(True)
     plt.show()
 
-def plot_frequencies_vs_frame_index(frequencies):
+def plot_frequencies_vs_frame_index(frequencies, frame_indecies = list(range(len(frequencies)))):
     # Create a list of frame indices
-    frame_indices = list(range(len(frequencies)))
-    
+
     plt.figure(figsize=(12, 6))
-    plt.plot(frame_indices, frequencies, marker='o', linestyle='-', color='b')
+    plt.plot(frame_indecies, frequencies, marker='o', linestyle='-', color='b')
     plt.xlabel('Frame Index')
     plt.ylabel('Dominant Frequency (Hz)')
     plt.title('Dominant Frequency vs Frame Index')
@@ -282,8 +305,10 @@ print(f"How many frames we have: {number_of_frames}")
 
 
 
-#uncomment this to see the graph
+#uncomment this to see the graphs
 #make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
 plot_frequencies_vs_frame_index(frequencies)
+#plot_frequencies_vs_frame_index(onset_frequencies_only, frames_with_onsets)
+
 print(frames_with_onsets)
 print(onset_frequencies_only)

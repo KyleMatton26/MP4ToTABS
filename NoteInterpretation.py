@@ -1,6 +1,6 @@
 import numpy as np
 import librosa
-from AudioProcessing import get_frame_size, get_hop_length, get_onset_frames, get_tempo, get_samplerate, get_frame_duration
+from AudioProcessing import get_frame_size, get_hop_length, get_onset_frames, get_tempo, get_samplerate, get_frame_duration, get_onset_only_freq
 import matplotlib.pyplot as plt
 
 def get_matched_notes(audio_path, dominant_frequencies_path):
@@ -109,9 +109,15 @@ def get_matched_notes(audio_path, dominant_frequencies_path):
         
 
 
+    onset_frequencies_only = get_onset_only_freq()
+
     # Interpret frequencies into notes
     notes = interpret_frequencies(frequencies, expected_hz_values)
     print(f"Notes: {notes}")
+    notes_only_onset = interpret_frequencies(onset_frequencies_only, expected_hz_values)
+    print(f"Onset Only Notes: {notes_only_onset}")
+
+
 
     # Filter out None values (unrecognized frequencies)
     filtered_notes = []
