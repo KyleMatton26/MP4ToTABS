@@ -80,8 +80,8 @@ def make_plot(samplerate, data):
     length = data.shape[0] / samplerate
     time = np.linspace(0., length, data.shape[0])
 
-    #plt.plot((time*samplerate + int(first_onset_time * samplerate) % hop_size)/frame_size, data, label="Mono channel")   #FRAME = X AXIS
-    plt.plot(time, data, label="Mono channel")   #TIME  = X AXIS
+    plt.plot((time*samplerate + int(first_onset_time * samplerate) % hop_size)/frame_size, data, label="Mono channel")   #FRAME = X AXIS
+    #plt.plot(time, data, label="Mono channel")   #TIME  = X AXIS
     plt.axvline(x=first_onset_time, color='b', linestyle='--', alpha=0.5)
     for i in range(128):  #CHANGE HOW MANY FRAMES WE CAN SEE
         plt.axvline(x=first_onset_time+i*frame_size/samplerate, color='b', linestyle='--', alpha=0.5)
@@ -193,8 +193,6 @@ for i in range(len(frames_with_onsets)):
         frame_correction_counter += 1
         frames_with_onsets[i] -= 1
         print(f"CHANGING: {frames_with_onsets[i]}")
-
-
 
 
 
