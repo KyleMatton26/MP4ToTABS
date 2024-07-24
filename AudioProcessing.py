@@ -162,6 +162,29 @@ expected_hz_values = {
     #'E5': 659.26
 }
 
+
+
+
+
+#ATTEMPTING TO DO SOMETHING HUGE :D
+#Seeing what big frames have an onset
+frames_with_onsets = []
+onset_frequencies_only = []
+frames_with_onsets = onset_times * samplerate // frame_size
+for frame in frames_with_onsets:
+    dom_freq = get_domiant_frequency(int(frame), samplerate)
+    onset_frequencies_only.append(dom_freq)
+
+
+
+
+
+
+
+
+
+
+
 # Loop through each frame and add the dominant frequency to the array
 for i in range(number_of_frames):
     start = i * hop_size + int(first_onset_time * samplerate) % hop_size
@@ -262,3 +285,5 @@ print(f"How many frames we have: {number_of_frames}")
 #uncomment this to see the graph
 #make_smoothed_dominant_frequency_graph(times, smoothed_frequencies, expected_hz_values)
 plot_frequencies_vs_frame_index(frequencies)
+print(frames_with_onsets)
+print(onset_frequencies_only)
