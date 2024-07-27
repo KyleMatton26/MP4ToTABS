@@ -7,7 +7,6 @@ from scipy.signal import medfilt
 import os
 import librosa
 
-
 #NAME OF THE MP3 FILE
 mp3_file = "HotCrossBuns.mp3"
 #WHAT TO NAME THE WAV FILE
@@ -178,6 +177,8 @@ def get_matched_notes():
                 note = note_names[closest_frequency_match_index]
             notes.append(note)
         return notes    
+    
+    """
     def interpret_note_durations():        
         note_length_by_samples = []
         for frame_ind in range(len(frames_with_onsets)):
@@ -194,7 +195,7 @@ def get_matched_notes():
                     if ste > max_ste:
                         max_ste = ste
                     else:
-                        if ste < max_ste * 0.1:
+                        if ste < max_ste * 0.01:
                             size_of_note_in_samples = number_of_frames_iterated * frame_size + small_frame * (frame_size//256)
                             note_length_by_samples.append(size_of_note_in_samples)
                             unfound_end = False
@@ -211,6 +212,52 @@ def get_matched_notes():
                             note_length_by_samples.append(size_of_note_in_samples)
                             unfound_end = False
         return note_length_by_samples
+    """
+        
+        #Go through each onset frame, convert the frame index to y[start:end] of samples, get STE, check the following frames
+        #to see if the STE is below a threshold, if the STE is above then you iterate to the next frame until the frame index
+        #is the same as the next loop's frame index, keep track of how many frames long a note is
+    def interpret_note_durations():        
+        note_length_by_frames = []
+        for frame_ind in range(len(frames_with_onsets)): #Looping through each of the frames with an onset example = {27, 47, 160, 180}
+            max_ste = 0
+            number_of_frames_iterated = 1
+            start = int((frames_with_onsets[frame_ind]) * frame_size)
+            end = start + frame_size
+            frame_for_computing_ste = y[start:end]
+            max_ste = np.sum(np.square(frame_for_computing_ste))
+            unfound_end = False
+            if frame_ind == len(frames_with_onsets) - 1: #If this is the late onset, make sure to not go out of bounds
+                for frame_inbetween in range(number_of_frames - int(frames_with_onsets[frame_ind])):
+                    start = int((frames_with_onsets[frame_ind + frame_inbetween] + number_of_frames_iterated) * frame_size)
+                    end = start + frame_size
+                    frame_for_computing_ste = y[start:end]
+                    ste = np.sum(np.square(frame_for_computing_ste))
+                    number_of_frames_iterated = frame_inbetween + 1
+                    if ste <= 0.05 * max_ste:
+                        note_length_by_frames.append(number_of_frames_iterated)
+                        unfound_end = False
+                        break
+                if unfound_end:
+                    note_length_by_frames.append(number_of_frames_iterated)
+            else:
+                for frame_inbetween in range(int(frames_with_onsets[frame_ind + 1]) - int(frames_with_onsets[frame_ind])):
+                    start = int((frames_with_onsets[frame_ind + frame_inbetween] + number_of_frames_iterated) * frame_size)
+                    end = start + frame_size
+                    frame_for_computing_ste = y[start:end]
+                    ste = np.sum(np.square(frame_for_computing_ste))
+                    number_of_frames_iterated = frame_inbetween + 1
+                    if ste <= 0.05 * max_ste:
+                        note_length_by_frames.append(number_of_frames_iterated)
+                        unfound_end = False
+                        break
+                if unfound_end:
+                    note_length_by_frames.append(number_of_frames_iterated)
+        return note_length_by_frames     
+        
+        
+        
+        
         
         
 
@@ -218,10 +265,10 @@ def get_matched_notes():
     notes_only_onset = interpret_frequencies(onset_frequencies_only, expected_hz_values)
     print(f"Onset Only Notes: {notes_only_onset}")
     durations_only_onset = interpret_note_durations()
-    print(f"Onset Only Durations Samples: {durations_only_onset}")
+    print(f"Onset Only Durations Frames: {durations_only_onset}")
     durations_only_onset_seconds = []
     for duration in durations_only_onset:
-        durations_only_onset_seconds.append(duration/samplerate)
+        durations_only_onset_seconds.append(duration/samplerate*frame_size)
     print(f"Onset Only Durations Seconds: {durations_only_onset_seconds}")
     
     # Function to classify note durations based on STE and tempo
