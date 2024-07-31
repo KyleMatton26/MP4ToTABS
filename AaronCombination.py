@@ -6,9 +6,9 @@ import os
 import librosa
 
 # NAME OF THE MP3 FILE
-mp3_file = "HotCrossBuns.mp3"
+mp3_file = "RestTest.mp3"
 # WHAT TO NAME THE WAV FILE
-wav_file = "HotCrossBuns.wav"
+wav_file = "RestTest.wav"
 
 # Check if the file exists
 if not os.path.exists(mp3_file):
@@ -73,20 +73,25 @@ for i, onset in enumerate(onset_times):
     # Loop through frames until next onset or STE below threshold
     current_sample = starting_sample
     next_onset_sample = int(onset_times[i + 1] * sr) if i + 1 < len(onset_times) else len(y)
-
+    previous_STE = 0
+    hasRest = False
     while current_sample < next_onset_sample:
         frame = y[current_sample:current_sample + getting_dom_freq_window_size]
         if len(frame) < getting_dom_freq_window_size:
             break  # Break if the frame is too short (end of data)
-        STE = compute_short_time_energy(frame)
-        if STE < STE_threshold:
+        ste = compute_short_time_energy(frame)
+        if ste < previous_STE * 0.33: #THE 0.33 IS THE DROP FROM THE PREVIOUS NOTE
+            hasRest = True
             break  # Break if the STE is below the threshold (note end)
         current_sample += getting_dom_freq_window_size
+        previous_STE = ste
 
     # Calculate note duration
     note_duration_samples = current_sample - starting_sample
     note_duration_seconds = note_duration_samples / sr
     note_durations.append(note_duration_seconds)
+    if hasRest:
+        note_durations.append(0)
 
 # NOTE INTERPRETATION
 print(f"Frequencies: {onset_frequencies_only}")
@@ -161,7 +166,7 @@ def duration_to_note_type(duration_seconds, tempo):
     elif note_durations_in_beats >= 0.21875:
         return "Sixteenth"
     else:
-        return "Less than Sixteenth"
+        return "Rest"
 
 # Convert note durations to note types
 note_types = [duration_to_note_type(duration, tempo) for duration in note_durations]
