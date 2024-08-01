@@ -1,6 +1,6 @@
 import music21 as m21
-from music21 import stream, duration, note, metadata
-from Combination import get_notes
+from music21 import metadata
+from Combination import get_notes, get_file_name
 from music21 import converter
 
 # Set the MuseScore path
@@ -51,13 +51,14 @@ def create_sheet_music(notes, score_name, output_path="output.musicxml"):
     score.write('musicxml', fp=output_path)
 
 # Example usage
-audio_path = "RestTest.wav"
+audio_name = get_file_name()
+score_name = audio_name.rsplit('.', 1)[0]
 
-# Ensure the get_notes function is available and correct
 notes = get_notes()
-#Make a way to make score name correct
-#score_name = ____
-create_sheet_music(notes, "Rest Test")
+
+print(score_name) 
+
+create_sheet_music(notes, score_name)
 
 # Opening the musicxml file
 file_path = "output.musicxml"

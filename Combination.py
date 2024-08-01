@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.io import wavfile
 from pydub import AudioSegment
 from scipy.fft import rfft, rfftfreq
 import os
@@ -8,11 +7,10 @@ import librosa
 #NAME OF THE MP3 FILE
 mp3_file = "RestTest.mp3"
 
-
-
-
-
 wav_file = mp3_file.replace(".mp3", ".wav")
+
+def get_file_name():
+    return wav_file
 
 #Check if the file exists
 if not os.path.exists(mp3_file):
@@ -83,7 +81,7 @@ for i, onset in enumerate(onset_times):
         if len(frame) < getting_dom_freq_window_size:
             break  #Break if the frame is too short (end of data)
         ste = compute_short_time_energy(frame)
-        if ste < previous_STE * 0.33: #THE 0.33 IS THE DROP FROM THE PREVIOUS NOTE
+        if ste < previous_STE * 0.3: #THE 0.33 IS THE DROP FROM THE PREVIOUS NOTE
             hasRest = True
             break  #Break if the STE is below the threshold (note end)
         current_sample += getting_dom_freq_window_size
