@@ -1,6 +1,6 @@
 import music21 as m21
 from music21 import metadata
-from Combination import get_notes, get_file_name
+from NoteInterpretation import get_notes, get_file_name
 from music21 import converter
 
 # Set the MuseScore path
