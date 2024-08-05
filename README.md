@@ -26,11 +26,7 @@ Follow these steps to get your development environment set up:
    ```bash
    pip install numpy pydub scipy librosa music21
 
-4. **Install FFmpeg**
-   ```bash
-   Follow the instructions on the official website: https://ffmpeg.org/download.html
-
-5. **Clone the Repository**
+4. **Clone the Repository**
    ```bash
    git clone https://github.com/yourusername/your-repo-name.git
 
@@ -59,6 +55,11 @@ To convert your MP3 file to sheet music:
 
    This script will:
    - Convert the arrays into a sheet music
+   - Will display the sheet music in MuseScore
+
+##🔧 Customization
+MP3 File Name: Update the mp3_file variable in NoteInterpretation.py to match your MP3 file.
+MuseScore Path: Adjust the MuseScore path in CreateSheetMusic.py if MuseScore is installed in a different location.
 
 
 
