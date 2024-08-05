@@ -58,8 +58,9 @@ To convert your MP3 file to sheet music:
    - Will display the sheet music in MuseScore
 
 ## 🔧 Customization
-MP3 File Name: Update the mp3_file variable in NoteInterpretation.py to match your MP3 file.
-MuseScore Path: Adjust the MuseScore path in CreateSheetMusic.py if MuseScore is installed in a different location.
+To customize the code to read the proper files:
+   -MP3 File Name: Update the mp3_file variable in NoteInterpretation.py to match your MP3 file.
+   -MuseScore Path: Adjust the MuseScore path in CreateSheetMusic.py if MuseScore is installed in a different location.
 
 
 
